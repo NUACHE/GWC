@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:gwc/Controllers/meterViewController.dart';
+import 'package:gwc/Model/urls.dart';
 import 'package:gwc/Pages/BottomSheets.dart';
 import 'package:gwc/Pages/EditInfo.dart';
 import 'package:gwc/Pages/my_custom_widgets.dart';
@@ -26,6 +27,8 @@ class _MyMeterState extends State<MyMeter> {
   var data;
   bool loading = true;
   bool empty = true;
+  
+
 
 // headers: {HttpHeaders.authorizationHeader: "Bearer $token"},
   
@@ -41,7 +44,7 @@ class _MyMeterState extends State<MyMeter> {
     String token = await storage.read(key: "jwt");
 
     var url = Uri.parse(
-        "http://192.168.43.56/digi_rest/api/handler.php?customer_id=$id&alias=1&no=0");
+        "$baseUrl/digi_rest/api/handler.php?customer_id=$id&alias=1&no=0");
     http.get(url, headers: {HttpHeaders.authorizationHeader: "Bearer $token"},).then((response) {
       print(response.body);
       var me = jsonDecode(response.body);
@@ -102,7 +105,7 @@ class _MyMeterState extends State<MyMeter> {
           //If after running checkMeter, we found out that user has no meter.
            empty == true
               ? Container(
-                  child: Center(child: Text("Here is empty")),
+                  child: Center(child: Text("No Meters added yet!")),
                 )
               : 
               //If after running checkMeter, we found out that user has some meter.

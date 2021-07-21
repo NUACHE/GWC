@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:gwc/Model/urls.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +66,7 @@ class LogInState extends State<LogIn> {
     print(user_email);
     final response = await http.post(
         Uri.parse(
-            "http://192.168.43.56/digi_rest/api/authenticate_user_service.php"),
+            "$baseUrl/digi_rest/api/authenticate_user_service.php"),
         headers: Myheaders,
         body: jsonEncode(json));
     print('Status code: ${response.statusCode}');

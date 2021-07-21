@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:gwc/Model/urls.dart';
 import 'package:gwc/Pages/MeterView.dart';
 import 'package:http/http.dart' as http;
 import 'package:bottom_sheet/bottom_sheet.dart';
@@ -56,7 +57,7 @@ class MyBottomSheet {
 
     final response = await http.post(
         Uri.parse(
-            "http://192.168.43.56/digi_rest/api/handler.php"),
+            "$baseUrl/digi_rest/api/handler.php"),
         headers: {HttpHeaders.authorizationHeader: "Bearer $token"},
         
         body: jsonEncode(json));

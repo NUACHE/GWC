@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:gwc/Model/Objects.dart';
 import 'package:gwc/Pages/DashBoard.dart';
@@ -51,13 +52,24 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends State<SplashScreen> {
+
+   final storage = FlutterSecureStorage();
+    String token ;
+   
+
   startTime() async {
     var duration = new Duration(seconds: 3);
+      token = await storage.read(key: "jwt");
     return new Timer(duration, navigationPage);
   }
 
   void navigationPage() {
+    if(token == null){
     Navigator.of(context).pushReplacementNamed('/IntroSlider');
+    }else{
+      final MyObjects objects = Get.put(MyObjects(), permanent: true);
+       Navigator.of(context).pushReplacementNamed('/DashBoardRoute');
+    }
   }
 
   @override

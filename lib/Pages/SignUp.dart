@@ -56,7 +56,7 @@ class SignUpState extends State<SignUp> {
     print(json);
     print(user_email);
     final response = await http.post(
-        Uri.parse("http://192.168.43.56/digi_rest/api/create_user_service.php"),
+        Uri.parse("$baseUrl/digi_rest/api/create_user_service.php"),
         headers: Myheaders,
         body: jsonEncode(json));
     print('Status code: ${response.statusCode}');

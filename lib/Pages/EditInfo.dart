@@ -1,10 +1,16 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:gwc/Model/Objects.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:gwc/Model/urls.dart';
 import 'package:gwc/helpers/images.dart';
 import 'package:gwc/helpers/my_colors.dart';
 import 'package:gwc/helpers/my_textStyles.dart';
+import 'package:http/http.dart' as http;
 
 class EditInfo extends StatefulWidget {
  
@@ -44,6 +50,12 @@ class EditInfo extends StatefulWidget {
 }
 
 class EditInfoState extends State<EditInfo> {
+
+  final storage = FlutterSecureStorage();
+  var data;
+  bool loading = true;
+  bool empty = true;
+
   Widget buildSpeedDial() {
     return SpeedDial(
       elevation: 2,
@@ -56,20 +68,61 @@ class EditInfoState extends State<EditInfo> {
       children: [
         SpeedDialChild(
           elevation: 2,
-          label: "Record Voice",
-          child: Icon(Icons.mic, color: MyColors.grey_80),
+          label: "Lock Meter",
+          child: Icon(Icons.lock, color: MyColors.grey_80),
+          backgroundColor: Colors.white,
+          onTap: () {
+            print("object");
+          },
+        ),
+        SpeedDialChild(
+          elevation: 2,
+          label: "Borrow Credit",
+          child: Icon(Icons.account_balance, color: MyColors.grey_80),
           backgroundColor: Colors.white,
           onTap: () {},
         ),
         SpeedDialChild(
           elevation: 2,
-          label: "Call Friend",
-          child: Icon(Icons.call, color: MyColors.grey_80),
+          label: "Top Up",
+          child: Icon(Icons.credit_card, color: MyColors.grey_80),
+          backgroundColor: Colors.white,
+          onTap: () {},
+        ),
+         SpeedDialChild(
+          elevation: 2,
+          label: "Readings",
+          child: Icon(Icons.book, color: MyColors.grey_80),
           backgroundColor: Colors.white,
           onTap: () {},
         ),
       ],
     );
+  }
+
+  deleteMeter() async {
+    String id = await storage.read(key: "customer_id");
+    String token = await storage.read(key: "jwt");
+
+    var url = Uri.parse(
+        "$baseUrl/digi_rest/api/handler.php?customer_id=$id&alias=1&no=0");
+    http.get(url, headers: {HttpHeaders.authorizationHeader: "Bearer $token"},).then((response) {
+      print(response.body);
+      var me = jsonDecode(response.body);
+
+      print(me["data"]);
+      
+      setState(() {
+        data = me["data"];
+        loading = false;
+      });
+
+      if (data.length > 0) {
+        setState(() {
+          empty = false;
+        });
+      }
+    });
   }
 
   @override
@@ -207,7 +260,9 @@ class EditInfoState extends State<EditInfo> {
                     ],
                   ),
                   Spacer(),
-                  IconButton(icon: Icon(Icons.delete, size: 30,), onPressed: (){}, color: Colors.red, )
+                  IconButton(icon: Icon(Icons.delete, size: 30,), onPressed: (){
+                    deleteMeter();
+                  }, color: Colors.red, )
                 ],
               ),
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 25),

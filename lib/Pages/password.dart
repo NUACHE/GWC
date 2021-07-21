@@ -1,7 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:gwc/Model/urls.dart';
+import 'package:gwc/Pages/my_custom_widgets.dart';
 import 'package:gwc/helpers/my_colors.dart';
 import 'package:gwc/helpers/my_textStyles.dart';
+import 'package:http/http.dart' as http;
 
 class Password extends StatefulWidget {
 
@@ -14,7 +21,7 @@ class Password extends StatefulWidget {
 
 class PasswordState extends State<Password> {
 
-
+   final storage = FlutterSecureStorage();
   final TextEditingController oldPasswordController = new TextEditingController();
   final TextEditingController newPasswordController = new TextEditingController();
 
@@ -112,7 +119,9 @@ class PasswordState extends State<Password> {
                   child: FlatButton(
                     child: Text("SUBMIT", style: MyText.subhead(context).copyWith(color: Colors.white)),
                     color: MyColors.primary,
-                    onPressed: (){ }
+                    onPressed: (){  
+                      changePassword();
+                     }
                     ,
                   ),
                 )
@@ -122,6 +131,83 @@ class PasswordState extends State<Password> {
         ),
       ),
     );
+  }
+
+  changePassword() async {
+   
+      String token = await storage.read(key: "jwt");
+    showLoading(context);
+    final Myheaders = {
+      "Content-type": "application/json",
+      "accept": "application/json"
+    };
+
+    final json = {
+      "old_password": "${oldPasswordController.text}",
+      "new_password": "${newPasswordController.text}",
+      "change_password": "1"
+    };
+    print(json);
+  //  print(user_email);
+    final response = await http.post(
+        Uri.parse(
+            "$baseUrl/digi_rest/api/edit_profile_service.php"),
+       headers: {HttpHeaders.authorizationHeader: "Bearer $token"},
+        body: jsonEncode(json));
+    print('Status code: ${response.statusCode}');
+    print('Body: ${response.body}');
+    var signUpMessage = jsonDecode(response.body);
+    print(signUpMessage["message"]);
+    if (signUpMessage["message"] == 'Success') {
+      Navigator.pop(context);
+     showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("${signUpMessage["message"]}"),
+            content: Text("Password Successfully Changed"),
+            actions: <Widget>[
+              FlatButton(
+                child: const Text('OKAY'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        },
+      );
+     // storeData(signUpMessage);
+
+     
+    /*   Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => DashBoard()),
+      ); */
+    } else {
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Error"),
+            content: Text("${signUpMessage["message"]}"),
+            actions: <Widget>[
+              FlatButton(
+                child: const Text('OKAY'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        },
+      );
+    }
+  
+
   }
 
   
